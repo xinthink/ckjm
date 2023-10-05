@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.apache.bcel:bcel:6.0'
+}
+
+version = '1.0'
+group = 'gr.spinellis.ckjm'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Built-By': System.getProperty('user.name'),
+                   'Main-Class': 'gr.spinellis.ckjm.MetricsFilter'
+    }
+}
+
+// task copyLibs(type: Copy) {
+//     from configurations.runtime
+//     into 'lib'
+// }
+
+task ckjm(type: JavaExec) {
+    // dependsOn copyLibs
+    // classpath = sourceSets.main.runtimeClasspath
+    main = 'gr.spinellis.ckjm.MetricsFilter'
+    args 'src'
+}
