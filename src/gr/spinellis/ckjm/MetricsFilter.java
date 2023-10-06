@@ -19,15 +19,18 @@ package gr.spinellis.ckjm;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
+import gr.spinellis.ckjm.report.impl.PrintCsvResults;
 import gr.spinellis.ckjm.report.impl.PrintPlainResults;
 import gr.spinellis.ckjm.report.impl.PrintXmlResults;
 
@@ -130,7 +133,7 @@ public class MetricsFilter {
     ClassMetricsContainer cm = new ClassMetricsContainer();
 
     for (String file : files) {
-      processClass(cm, file);
+      processInputItem(cm, file);
     }
     cm.printMetrics(outputHandler);
   }
@@ -161,31 +164,30 @@ public class MetricsFilter {
 
     ClassMetricsContainer cm = new ClassMetricsContainer();
 
-//    if (argv.length == argp) {
-//      BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-//      try {
-//        String s;
-//        while ((s = in.readLine()) != null) {
-//          processClass(cm, s);
-//        }
-//      } catch (Exception e) {
-//        System.err.println("Error reading line: " + e);
-//        System.exit(1);
-//      }
-//    }
-
-    for (int i = argp; i < argv.length; i++) {
-      String file = argv[i];
-      if (file.endsWith(".jar")) {
-        parseJarFile(cm, file);
-      } else {
-        processClass(cm, file);
+    // read from standard input if no arguments are given
+    if (argv.length == argp) {
+      try {
+        processStandardInput(cm);
+      } catch (Exception e) {
+        System.err.println("Error reading line: " + e);
+        System.exit(1);
       }
     }
 
+    // process the remaining command line arguments
+    for (int i = argp; i < argv.length; i++) {
+      processInputItem(cm, argv[i]);
+    }
+
+    // print standard output
     CkjmOutputHandler handler = new PrintPlainResults(System.out);
     cm.printMetrics(handler);
 
+    tryXmlReport(cm);
+    tryCsvReport(cm);
+  }
+
+  private static void tryXmlReport(ClassMetricsContainer cm) {
     if (xmlReportTarget != null) {
       try {
         PrintXmlResults xmlHandler = new PrintXmlResults(new PrintStream(new FileOutputStream(xmlReportTarget)));
@@ -195,6 +197,34 @@ public class MetricsFilter {
       } catch (IOException e) {
         System.err.println("Failed to generate XML report:" + e);
       }
+    }
+  }
+
+  private static void tryCsvReport(ClassMetricsContainer cm) {
+    if (csvReportTarget != null) {
+      try {
+        PrintCsvResults csvHandler = new PrintCsvResults(new PrintStream(new FileOutputStream(csvReportTarget)));
+        csvHandler.printHeader();
+        cm.printMetrics(csvHandler);
+      } catch (IOException e) {
+        System.err.println("Failed to generate CSV report:" + e);
+      }
+    }
+  }
+
+  private static void processStandardInput(ClassMetricsContainer cm) throws IOException {
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    String s;
+    while ((s = in.readLine()) != null) {
+      processInputItem(cm, s);
+    }
+  }
+
+  private static void processInputItem(ClassMetricsContainer cm, String item) {
+    if (item.endsWith(".jar")) {
+      parseJarFile(cm, item);
+    } else {
+      processClass(cm, item);
     }
   }
 
