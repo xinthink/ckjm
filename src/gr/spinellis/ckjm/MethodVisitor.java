@@ -111,8 +111,9 @@ class MethodVisitor extends EmptyVisitor {
    */
   public void visitInvokeInstruction(InvokeInstruction i) {
     Type[] argTypes = i.getArgumentTypes(cp);
-    for (int j = 0; j < argTypes.length; j++)
-      cv.registerCoupling(argTypes[j]);
+    for (Type argType : argTypes) {
+      cv.registerCoupling(argType);
+    }
     cv.registerCoupling(i.getReturnType(cp));
     /* Measuring decision: measure overloaded methods separately */
     cv.registerMethodInvocation(i.getClassName(cp), i.getMethodName(cp), argTypes);

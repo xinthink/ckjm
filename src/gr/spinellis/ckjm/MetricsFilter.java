@@ -16,9 +16,20 @@
 
 package gr.spinellis.ckjm;
 
-import org.apache.bcel.classfile.*;
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.JavaClass;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import gr.spinellis.ckjm.report.CkjmOutputHandler;
+import gr.spinellis.ckjm.report.impl.PrintPlainResults;
+import gr.spinellis.ckjm.report.impl.PrintXmlResults;
 
 /**
  * Convert a list of classes into their metrics.
@@ -93,6 +104,21 @@ public class MetricsFilter {
     }
   }
 
+  static void processClass(ClassMetricsContainer cm, InputStream stream, String clspec) {
+    JavaClass jc = null;
+
+    try {
+      jc = new ClassParser(stream, clspec).parse();
+    } catch (IOException e) {
+      System.err.println("Error loading " + clspec + ": " + e);
+    }
+    if (jc != null) {
+      ClassVisitor visitor = new ClassVisitor(jc, cm);
+      visitor.start();
+      visitor.end();
+    }
+  }
+
   /**
    * The interface for other Java based applications.
    * Implement the outputhandler to catch the results
@@ -135,21 +161,26 @@ public class MetricsFilter {
 
     ClassMetricsContainer cm = new ClassMetricsContainer();
 
-    if (argv.length == argp) {
-      BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-      try {
-        String s;
-        while ((s = in.readLine()) != null) {
-          processClass(cm, s);
-        }
-      } catch (Exception e) {
-        System.err.println("Error reading line: " + e);
-        System.exit(1);
-      }
-    }
+//    if (argv.length == argp) {
+//      BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+//      try {
+//        String s;
+//        while ((s = in.readLine()) != null) {
+//          processClass(cm, s);
+//        }
+//      } catch (Exception e) {
+//        System.err.println("Error reading line: " + e);
+//        System.exit(1);
+//      }
+//    }
 
     for (int i = argp; i < argv.length; i++) {
-      processClass(cm, argv[i]);
+      String file = argv[i];
+      if (file.endsWith(".jar")) {
+        parseJarFile(cm, file);
+      } else {
+        processClass(cm, file);
+      }
     }
 
     CkjmOutputHandler handler = new PrintPlainResults(System.out);
@@ -158,10 +189,27 @@ public class MetricsFilter {
     if (xmlReportTarget != null) {
       try {
         PrintXmlResults xmlHandler = new PrintXmlResults(new PrintStream(new FileOutputStream(xmlReportTarget)));
+        xmlHandler.printHeader();
         cm.printMetrics(xmlHandler);
+        xmlHandler.printFooter();
       } catch (IOException e) {
         System.err.println("Failed to generate XML report:" + e);
       }
+    }
+  }
+
+  private static void parseJarFile(ClassMetricsContainer cm, String jar) {
+    Enumeration<JarEntry> entries;
+    try (JarFile jarFile = new JarFile(jar)) {
+      entries = jarFile.entries();
+      while (entries.hasMoreElements()) {
+        JarEntry entry = entries.nextElement();
+        if (entry.getName().endsWith(".class")) {
+          processClass(cm, jarFile.getInputStream(entry), entry.getName());
+        }
+      }
+    } catch (IOException e) {
+      System.err.println("Error loading " + jar + ": " + e);
     }
   }
 }

@@ -43,12 +43,12 @@ java -jar ..\build\ckjm-1.6.jar ..\build\classes\gr\spinellis\ckjm\*.class | sed
 <ckjm>
 <metric><classname>gr.spinellis.ckjm.ClassMetricsContainer</classname><WMC>3</WMC><DIT>1</DIT><NOC>0</NOC><CBO>3</CBO><RFC>18</RFC><LCOM>0</LCOM><Ca>2</Ca><NPM>2</NPM></metric>
 <metric><classname>gr.spinellis.ckjm.MethodVisitor</classname><WMC>11</WMC><DIT>1</DIT><NOC>0</NOC><CBO>21</CBO><RFC>40</RFC><LCOM>0</LCOM><Ca>1</Ca><NPM>8</NPM></metric>
-<metric><classname>gr.spinellis.ckjm.CkjmOutputHandler</classname><WMC>1</WMC><DIT>1</DIT><NOC>0</NOC><CBO>1</CBO><RFC>1</RFC><LCOM>0</LCOM><Ca>3</Ca><NPM>1</NPM></metric>
+<metric><classname>gr.spinellis.ckjm.report.CkjmOutputHandler</classname><WMC>1</WMC><DIT>1</DIT><NOC>0</NOC><CBO>1</CBO><RFC>1</RFC><LCOM>0</LCOM><Ca>3</Ca><NPM>1</NPM></metric>
 <metric><classname>gr.spinellis.ckjm.ClassMetrics</classname><WMC>24</WMC><DIT>1</DIT><NOC>0</NOC><CBO>0</CBO><RFC>33</RFC><LCOM>196</LCOM><Ca>6</Ca><NPM>23</NPM></metric>
 <metric><classname>gr.spinellis.ckjm.MetricsFilter</classname><WMC>7</WMC><DIT>1</DIT><NOC>0</NOC><CBO>6</CBO><RFC>30</RFC><LCOM>11</LCOM><Ca>2</Ca><NPM>5</NPM></metric>
 <metric><classname>gr.spinellis.ckjm.ClassVisitor</classname><WMC>13</WMC><DIT>1</DIT><NOC>0</NOC><CBO>14</CBO><RFC>71</RFC><LCOM>34</LCOM><Ca>2</Ca><NPM>9</NPM></metric>
 <metric><classname>gr.spinellis.ckjm.ClassMap</classname><WMC>3</WMC><DIT>1</DIT><NOC>0</NOC><CBO>1</CBO><RFC>21</RFC><LCOM>0</LCOM><Ca>0</Ca><NPM>2</NPM></metric>
-<metric><classname>gr.spinellis.ckjm.PrintPlainResults</classname><WMC>2</WMC><DIT>1</DIT><NOC>0</NOC><CBO>2</CBO><RFC>8</RFC><LCOM>0</LCOM><Ca>1</Ca><NPM>2</NPM></metric>
+<metric><classname>gr.spinellis.ckjm.report.impl.PrintPlainResults</classname><WMC>2</WMC><DIT>1</DIT><NOC>0</NOC><CBO>2</CBO><RFC>8</RFC><LCOM>0</LCOM><Ca>1</Ca><NPM>2</NPM></metric>
 </ckjm>
 </fmtcode>
 <p />

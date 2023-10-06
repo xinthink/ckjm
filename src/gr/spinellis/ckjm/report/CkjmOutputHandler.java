@@ -14,23 +14,24 @@
  *   limitations under the License.
  */
 
-package gr.spinellis.ckjm;
+package gr.spinellis.ckjm.report;
 
-import java.io.PrintStream;
+import gr.spinellis.ckjm.ClassMetrics;
 
 /**
- * Simple plain text output formatter
+ * Interface of output handlers
+ * Use this interface to couple your tool to CKJM. Example implenations
+ * which could use this tool are ant task writing, IDE integration,
+ * GUI based interfaces etc.
  *
  * @author Julien Rentrop
  */
-public class PrintPlainResults implements CkjmOutputHandler {
-  private PrintStream p;
-
-  public PrintPlainResults(PrintStream p) {
-    this.p = p;
-  }
-
-  public void handleClass(String name, ClassMetrics c) {
-    p.println(name + " " + c.toString());
-  }
+public interface CkjmOutputHandler {
+  /**
+   * Method called when metrics are generated
+   *
+   * @param name Name of the class
+   * @param c    Value object that contains the corresponding metrics
+   */
+  void handleClass(String name, ClassMetrics c);
 }

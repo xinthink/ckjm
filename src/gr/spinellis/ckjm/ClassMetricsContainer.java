@@ -16,10 +16,9 @@
 
 package gr.spinellis.ckjm;
 
-import org.apache.bcel.classfile.*;
-
 import java.util.*;
-import java.io.*;
+
+import gr.spinellis.ckjm.report.CkjmOutputHandler;
 
 
 /**

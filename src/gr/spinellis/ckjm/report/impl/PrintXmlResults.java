@@ -13,12 +13,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package gr.spinellis.ckjm;
-
-import gr.spinellis.ckjm.CkjmOutputHandler;
-import gr.spinellis.ckjm.ClassMetrics;
+package gr.spinellis.ckjm.report.impl;
 
 import java.io.PrintStream;
+
+import gr.spinellis.ckjm.report.CkjmOutputHandler;
+import gr.spinellis.ckjm.ClassMetrics;
 
 /**
  * XML output formatter
@@ -38,6 +38,24 @@ public class PrintXmlResults implements CkjmOutputHandler {
   }
 
   public void handleClass(String name, ClassMetrics c) {
+    StringBuilder efferent = new StringBuilder();
+    efferent.append("<dependsOn>");
+    for (String clz : c.getEfferentCoupledClasses()) {
+      efferent.append("<class>")
+          .append(clz)
+          .append("</class>");
+    }
+    efferent.append("</dependsOn>");
+
+    StringBuilder afferent = new StringBuilder();
+    afferent.append("<dependedBy>");
+    for (String clz : c.getAfferentCoupledClasses()) {
+      afferent.append("<class>")
+          .append(clz)
+          .append("</class>");
+    }
+    afferent.append("</dependedBy>");
+
     p.print("<class>\n" +
         "<name>" + name + "</name>\n" +
         "<wmc>" + c.getWmc() + "</wmc>\n" +
@@ -48,6 +66,8 @@ public class PrintXmlResults implements CkjmOutputHandler {
         "<lcom>" + c.getLcom() + "</lcom>\n" +
         "<ca>" + c.getCa() + "</ca>\n" +
         "<npm>" + c.getNpm() + "</npm>\n" +
+        efferent + "\n" +
+        afferent + "\n" +
         "</class>\n");
   }
 

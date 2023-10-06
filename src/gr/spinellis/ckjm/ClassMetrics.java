@@ -244,15 +244,14 @@ public class ClassMetrics {
    * Return the 6 CK metrics plus Ce as a space-separated string
    */
   public String toString() {
-    return (
-        wmc +
-            " " + getDit() +
-            " " + noc +
-            " " + getCbo() +
-            " " + rfc +
-            " " + lcom +
-            " " + getCa() +
-            " " + npm);
+    return wmc +
+        " " + getDit() +
+        " " + noc +
+        " " + getCbo() +
+        " " + rfc +
+        " " + lcom +
+        " " + getCa() +
+        " " + npm;
   }
 
   /**

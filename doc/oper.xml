@@ -19,12 +19,12 @@ metrics for that class: WMC, DIT, NOC, CBO, RFC, LCOM, Ce, and NPM.
 <pre>
 gr.spinellis.ckjm.ClassMetricsContainer 3 1 0 3 18 0 2 2
 gr.spinellis.ckjm.MethodVisitor 11 1 0 21 40 0 1 8
-gr.spinellis.ckjm.CkjmOutputHandler 1 1 0 1 1 0 3 1
+gr.spinellis.ckjm.report.CkjmOutputHandler 1 1 0 1 1 0 3 1
 gr.spinellis.ckjm.ClassMetrics 24 1 0 0 33 196 6 23
 gr.spinellis.ckjm.MetricsFilter 7 1 0 6 30 11 2 5
 gr.spinellis.ckjm.ClassVisitor 13 1 0 14 71 34 2 9
 gr.spinellis.ckjm.ClassMap 3 1 0 1 21 0 0 2
-gr.spinellis.ckjm.PrintPlainResults 2 1 0 2 8 0 1 2
+gr.spinellis.ckjm.report.impl.PrintPlainResults 2 1 0 2 8 0 1 2
 </pre>
 <p />
 If the classes are located in a <em>jar</em> archive, you can
