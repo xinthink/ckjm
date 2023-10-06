@@ -54,10 +54,6 @@ public class ClassVisitor extends org.apache.bcel.classfile.EmptyVisitor {
    * The emtrics for the class being visited.
    */
   private ClassMetrics cm;
-  /* Classes encountered.
-   * Its cardinality is used for calculating the CBO.
-   */
-  private HashSet<String> efferentCoupledClasses = new HashSet<String>();
   /**
    * Methods encountered.
    * Its cardinality is used for calculating the RFC.
@@ -132,7 +128,7 @@ public class ClassVisitor extends org.apache.bcel.classfile.EmptyVisitor {
     if ((MetricsFilter.isJdkIncluded() ||
         !ClassMetrics.isJdkClass(className)) &&
         !myClassName.equals(className)) {
-      efferentCoupledClasses.add(className);
+      cm.addEfferentCoupling(className);
       cmap.getMetrics(className).addAfferentCoupling(myClassName);
     }
   }
@@ -223,7 +219,6 @@ public class ClassVisitor extends org.apache.bcel.classfile.EmptyVisitor {
    * Do final accounting at the end of the visit.
    */
   public void end() {
-    cm.setCbo(efferentCoupledClasses.size());
     cm.setRfc(responseSet.size());
     /*
      * Calculate LCOM  as |P| - |Q| if |P| - |Q| > 0 or 0 otherwise

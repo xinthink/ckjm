@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package gr.spinellis.ckjm.ant;
+package gr.spinellis.ckjm;
 
 import gr.spinellis.ckjm.CkjmOutputHandler;
 import gr.spinellis.ckjm.ClassMetrics;

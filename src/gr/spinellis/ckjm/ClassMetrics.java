@@ -17,6 +17,7 @@
 package gr.spinellis.ckjm;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Store details needed for calculating a class's Chidamber-Kemerer metrics.
@@ -42,10 +43,6 @@ public class ClassMetrics {
    */
   private int rfc;
   /**
-   * Coupling between object classes
-   */
-  private int cbo;
-  /**
    * Depth of inheritence tree
    */
   private int dit;
@@ -68,7 +65,9 @@ public class ClassMetrics {
   /**
    * Coupled classes: classes that use this class
    */
-  private HashSet<String> afferentCoupledClasses;
+  private final Set<String> afferentCoupledClasses;
+
+  private final Set<String> efferentCoupledClasses;
 
   /**
    * Default constructor.
@@ -76,10 +75,10 @@ public class ClassMetrics {
   ClassMetrics() {
     wmc = 0;
     noc = 0;
-    cbo = 0;
     npm = 0;
     visited = false;
-    afferentCoupledClasses = new HashSet<String>();
+    afferentCoupledClasses = new HashSet<>();
+    efferentCoupledClasses = new HashSet<>();
   }
 
   /**
@@ -139,17 +138,11 @@ public class ClassMetrics {
   }
 
   /**
-   * Set the coupling between object classes metric
-   */
-  public void setCbo(int c) {
-    cbo = c;
-  }
-
-  /**
-   * Return the coupling between object classes metric
+   * Return the coupling between object classes metric.
+   * Now it's just an alias for EC.
    */
   public int getCbo() {
-    return cbo;
+    return getCe();
   }
 
   /**
@@ -167,10 +160,38 @@ public class ClassMetrics {
   }
 
   /**
+   * Return the class's efferent couplings metric
+   */
+  public int getCe() {
+    return efferentCoupledClasses.size();
+  }
+
+  /**
    * Return the class's afferent couplings metric
    */
   public int getCa() {
     return afferentCoupledClasses.size();
+  }
+
+  /**
+   * Return the set of classes that this class depends on
+   */
+  public Set<String> getEfferentCoupledClasses() {
+    return efferentCoupledClasses;
+  }
+
+  /**
+   * Append a class that this class depends on
+   */
+  public void addEfferentCoupling(String name) {
+    efferentCoupledClasses.add(name);
+  }
+
+  /**
+   * Return the set of classes that depend on this class
+   */
+  public Set<String> getAfferentCoupledClasses() {
+    return afferentCoupledClasses;
   }
 
   /**
@@ -227,7 +248,7 @@ public class ClassMetrics {
         wmc +
             " " + getDit() +
             " " + noc +
-            " " + cbo +
+            " " + getCbo() +
             " " + rfc +
             " " + lcom +
             " " + getCa() +

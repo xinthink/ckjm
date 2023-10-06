@@ -17,13 +17,8 @@
 package gr.spinellis.ckjm;
 
 import org.apache.bcel.classfile.*;
-import org.apache.bcel.generic.*;
-import org.apache.bcel.Repository;
-import org.apache.bcel.Constants;
-import org.apache.bcel.util.*;
 
 import java.io.*;
-import java.util.*;
 
 /**
  * Convert a list of classes into their metrics.
@@ -48,6 +43,10 @@ public class MetricsFilter {
    * True if the reports should only include public classes
    */
   private static boolean onlyPublic = false;
+
+  private static String xmlReportTarget;
+
+  private static String csvReportTarget;
 
   /**
    * Return true if the measurements should include calls to the Java JDK into account
@@ -104,8 +103,9 @@ public class MetricsFilter {
   public static void runMetrics(String[] files, CkjmOutputHandler outputHandler) {
     ClassMetricsContainer cm = new ClassMetricsContainer();
 
-    for (int i = 0; i < files.length; i++)
-      processClass(cm, files[i]);
+    for (String file : files) {
+      processClass(cm, file);
+    }
     cm.printMetrics(outputHandler);
   }
 
@@ -124,24 +124,44 @@ public class MetricsFilter {
       onlyPublic = true;
       argp++;
     }
+    if (argv.length > argp && argv[argp].equals("--xml")) {
+      xmlReportTarget = argv[++argp];
+      argp++;
+    }
+    if (argv.length > argp && argv[argp].equals("--csv")) {
+      csvReportTarget = argv[++argp];
+      argp++;
+    }
+
     ClassMetricsContainer cm = new ClassMetricsContainer();
 
     if (argv.length == argp) {
       BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
       try {
         String s;
-        while ((s = in.readLine()) != null)
+        while ((s = in.readLine()) != null) {
           processClass(cm, s);
+        }
       } catch (Exception e) {
         System.err.println("Error reading line: " + e);
         System.exit(1);
       }
     }
 
-    for (int i = argp; i < argv.length; i++)
+    for (int i = argp; i < argv.length; i++) {
       processClass(cm, argv[i]);
+    }
 
     CkjmOutputHandler handler = new PrintPlainResults(System.out);
     cm.printMetrics(handler);
+
+    if (xmlReportTarget != null) {
+      try {
+        PrintXmlResults xmlHandler = new PrintXmlResults(new PrintStream(new FileOutputStream(xmlReportTarget)));
+        cm.printMetrics(xmlHandler);
+      } catch (IOException e) {
+        System.err.println("Failed to generate XML report:" + e);
+      }
+    }
   }
 }
