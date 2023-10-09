@@ -10,6 +10,7 @@
   <!--<script src="../../src/packages/react-force-graph-3d/dist/react-force-graph-3d.js"></script>-->
 
   <script src="./ckjm-all-classes.js"></script>
+  <!-- <script src="./tuner-fdg.js"></script> -->
 </head>
 
 <body>
@@ -19,8 +20,6 @@
   const { useState, useMemo, useCallback } = React;
 
   const ExpandableGraph = ({ graphData }) => {
-    const rootId = "gr.spinellis.ckjm.MetricsFilter";
-
     const nodesById = useMemo(() => {
       const nodesById = Object.fromEntries(graphData.nodes.map(node => [node.id, node]));
 

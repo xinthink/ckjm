@@ -82,6 +82,10 @@ public class MetricsFilter {
    * a jarfile, followed by space, followed by a class file name.
    */
   static void processClass(ClassMetricsContainer cm, String clspec) {
+    if (isClassIgnored(clspec)) {
+      return;
+    }
+
     int spc;
     JavaClass jc = null;
 
@@ -108,6 +112,10 @@ public class MetricsFilter {
   }
 
   static void processClass(ClassMetricsContainer cm, InputStream stream, String clspec) {
+    if (isClassIgnored(clspec)) {
+      return;
+    }
+
     JavaClass jc = null;
 
     try {
@@ -221,11 +229,14 @@ public class MetricsFilter {
   }
 
   private static void processInputItem(ClassMetricsContainer cm, String item) {
-    System.out.println("Processing " + item);
-    if (item.endsWith(".jar")) {
-      parseJarFile(cm, item);
-    } else {
-      processClass(cm, item);
+    try {
+      if (item.endsWith(".jar") || item.endsWith(".aar")) {
+        parseJarFile(cm, item);
+      } else {
+        processClass(cm, item);
+      }
+    } catch (Throwable e) {
+      System.err.println("Error loading " + item + ": " + e);
     }
   }
 
@@ -242,5 +253,9 @@ public class MetricsFilter {
     } catch (IOException e) {
       System.err.println("Error loading " + jar + ": " + e);
     }
+  }
+
+  private static boolean isClassIgnored(String className) {
+    return className.matches("^(javax|androidx|io.reactivex|org.reactivestreams|kotlin|org.intellij|org.jetbrains).*");
   }
 }

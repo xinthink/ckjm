@@ -1,3 +1,4 @@
+const rootId = "gr.spinellis.ckjm.MetricsFilter";
 const data = {
   "nodes": [
     {
