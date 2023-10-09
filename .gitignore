@@ -8,4 +8,3 @@ test/new.txt
 ckjm-[0-9]*
 *.iml
 .gradle/
-reports/

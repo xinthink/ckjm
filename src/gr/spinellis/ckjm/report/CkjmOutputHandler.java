@@ -17,6 +17,7 @@
 package gr.spinellis.ckjm.report;
 
 import gr.spinellis.ckjm.ClassMetrics;
+import gr.spinellis.ckjm.PackageMetrics;
 
 /**
  * Interface of output handlers
@@ -27,11 +28,24 @@ import gr.spinellis.ckjm.ClassMetrics;
  * @author Julien Rentrop
  */
 public interface CkjmOutputHandler {
+  void printHeader();
+
+  void printFooter();
+
+  /**
+   * Method called when package metrics generation starts
+   */
+  void handlePackage(PackageMetrics p);
+
+  /**
+   * Method called when package metrics generation ends
+   */
+  void endOfPackage(PackageMetrics p);
+
   /**
    * Method called when metrics are generated
    *
-   * @param name Name of the class
    * @param c    Value object that contains the corresponding metrics
    */
-  void handleClass(String name, ClassMetrics c);
+  void handleClass(ClassMetrics c);
 }

@@ -3,6 +3,7 @@ package gr.spinellis.ckjm.report.impl;
 import java.io.PrintStream;
 
 import gr.spinellis.ckjm.ClassMetrics;
+import gr.spinellis.ckjm.PackageMetrics;
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
 
 public class PrintCsvResults implements CkjmOutputHandler {
@@ -12,20 +13,42 @@ public class PrintCsvResults implements CkjmOutputHandler {
     this.p = p;
   }
 
+  @Override
   public void printHeader() {
-    p.println("name,package,wmc,dit,noc,cbo,rfc,lcom,ca,npm,depends_on");
+    p.println("name,type,package,wmc,dit,noc,cbo,rfc,lcom,ca,npm,depends_on");
   }
 
-  private String getPackage(String clz) {
-    int lastDot = clz.lastIndexOf('.');
-    return lastDot > -1 ? clz.substring(0, lastDot) : "";
+  @Override
+  public void handlePackage(PackageMetrics p) {
+    for (String clz : p.getEfferentCoupledClasses()) {
+      StringBuilder ln = new StringBuilder();
+      ln.append(p.getPackageName()).append(',')
+          .append("package").append(',')
+          .append(p.getPackageName()).append(',')
+          .append(',')
+          .append(',')
+          .append(',')
+          .append(p.getCe()).append(',')
+          .append(',')
+          .append(',')
+          .append(p.getCa()).append(',')
+          .append(',')
+          .append(clz);
+      this.p.println(ln);
+    }
   }
 
-  public void handleClass(String name, ClassMetrics c) {
+  @Override
+  public void endOfPackage(PackageMetrics p) {
+  }
+
+  @Override
+  public void handleClass(ClassMetrics c) {
     for (String clz : c.getEfferentCoupledClasses()) {
       StringBuilder ln = new StringBuilder();
-      ln.append(name).append(',')
-          .append(getPackage(name)).append(',')
+      ln.append(c.getClassName()).append(',')
+          .append("class").append(',')
+          .append(c.getPackageName()).append(',')
           .append(c.getWmc()).append(',')
           .append(c.getDit()).append(',')
           .append(c.getNoc()).append(',')
@@ -37,5 +60,9 @@ public class PrintCsvResults implements CkjmOutputHandler {
           .append(clz);
       p.println(ln);
     }
+  }
+
+  @Override
+  public void printFooter() {
   }
 }

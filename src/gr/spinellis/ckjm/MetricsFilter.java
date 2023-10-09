@@ -221,6 +221,7 @@ public class MetricsFilter {
   }
 
   private static void processInputItem(ClassMetricsContainer cm, String item) {
+    System.out.println("Processing " + item);
     if (item.endsWith(".jar")) {
       parseJarFile(cm, item);
     } else {

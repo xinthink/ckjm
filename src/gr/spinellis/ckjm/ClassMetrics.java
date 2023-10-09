@@ -29,7 +29,9 @@ import java.util.Set;
  * @version $Revision: 1.12 $
  * @see ClassVisitor
  */
-public class ClassMetrics {
+public class ClassMetrics implements Comparable<ClassMetrics> {
+  private final String className;
+  
   /**
    * Weighted methods per class
    */
@@ -72,13 +74,29 @@ public class ClassMetrics {
   /**
    * Default constructor.
    */
-  ClassMetrics() {
+  ClassMetrics(String className) {
+    this.className = className;
     wmc = 0;
     noc = 0;
     npm = 0;
     visited = false;
     afferentCoupledClasses = new HashSet<>();
     efferentCoupledClasses = new HashSet<>();
+  }
+
+  /**
+   * Return the class's name
+   */
+  public String getClassName() {
+    return className;
+  }
+
+  /**
+   * Return the class's package name
+   */
+  public String getPackageName() {
+    int lastDot = className.lastIndexOf('.');
+    return lastDot > -1 ? className.substring(0, lastDot) : "";
   }
 
   /**
@@ -269,5 +287,10 @@ public class ClassMetrics {
    */
   public boolean isVisited() {
     return visited;
+  }
+
+  @Override
+  public int compareTo(ClassMetrics o) {
+    return className.compareTo(o.className);
   }
 }

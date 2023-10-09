@@ -18,6 +18,7 @@ package gr.spinellis.ckjm.report.impl;
 
 import java.io.PrintStream;
 
+import gr.spinellis.ckjm.PackageMetrics;
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
 import gr.spinellis.ckjm.ClassMetrics;
 
@@ -33,7 +34,23 @@ public class PrintPlainResults implements CkjmOutputHandler {
     this.p = p;
   }
 
-  public void handleClass(String name, ClassMetrics c) {
-    p.println(name + " " + c.toString());
+  @Override
+  public void handlePackage(PackageMetrics p) {
+  }
+
+  @Override
+  public void endOfPackage(PackageMetrics p) {
+  }
+
+  @Override
+  public void printHeader() {
+  }
+
+  @Override
+  public void printFooter() {
+  }
+
+  public void handleClass(ClassMetrics c) {
+    p.println(c.getClassName() + " " + c.toString());
   }
 }

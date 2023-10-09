@@ -18,11 +18,8 @@ package gr.spinellis.ckjm;
 
 import org.apache.bcel.classfile.*;
 import org.apache.bcel.generic.*;
-import org.apache.bcel.Repository;
 import org.apache.bcel.Constants;
-import org.apache.bcel.util.*;
 
-import java.io.*;
 import java.util.*;
 import java.lang.reflect.Modifier;
 
@@ -91,7 +88,6 @@ public class ClassVisitor extends org.apache.bcel.classfile.EmptyVisitor {
    */
   public void visitJavaClass(JavaClass jc) {
     String super_name = jc.getSuperclassName();
-    String package_name = jc.getPackageName();
 
     cm.setVisited();
     if (jc.isPublic())
@@ -238,5 +234,7 @@ public class ClassVisitor extends org.apache.bcel.classfile.EmptyVisitor {
           lcom--;
       }
     cm.setLcom(lcom > 0 ? lcom : 0);
+
+    PackageMetricsCalculation.calculate(cmap, cm);
   }
 }

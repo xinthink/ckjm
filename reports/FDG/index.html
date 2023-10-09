@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<head>
+  <style> body { margin: 0; } </style>
+
+  <script src="https://unpkg.com/react/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.1/babel.js"></script>
+
+  <script src="https://unpkg.com/three"></script>
+  <script src="https://unpkg.com/three-spritetext"></script>
+
+  <script src="https://unpkg.com/react-force-graph-3d"></script>
+  <script src="./ckjm-all-classes.js"></script>
+  <!--<script src="../../src/packages/react-force-graph-3d/dist/react-force-graph-3d.js"></script>-->
+</head>
+
+<body>
+  <div id="graph"></div>
+
+  <script type="text/jsx">
+    ReactDOM.render(
+      <ForceGraph3D
+        graphData={data}
+        nodeAutoColorBy="group"
+        nodeLabel="id"
+        linkThreeObjectExtend={true}
+      />,
+      document.getElementById('graph')
+    );
+  </script>
+</body>

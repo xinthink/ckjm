@@ -17,6 +17,7 @@ package gr.spinellis.ckjm.report.impl;
 
 import java.io.PrintStream;
 
+import gr.spinellis.ckjm.PackageMetrics;
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
 import gr.spinellis.ckjm.ClassMetrics;
 
@@ -32,12 +33,47 @@ public class PrintXmlResults implements CkjmOutputHandler {
     this.p = p;
   }
 
+  @Override
   public void printHeader() {
     p.println("<?xml version=\"1.0\"?>");
     p.println("<ckjm>");
   }
 
-  public void handleClass(String name, ClassMetrics c) {
+  @Override
+  public void handlePackage(PackageMetrics p) {
+    StringBuilder efferent = new StringBuilder();
+    efferent.append("<dependsOn>");
+    for (String clz : p.getEfferentCoupledClasses()) {
+      efferent.append("<class>")
+          .append(clz)
+          .append("</class>");
+    }
+    efferent.append("</dependsOn>");
+
+    StringBuilder afferent = new StringBuilder();
+    afferent.append("<dependedBy>");
+    for (String clz : p.getAfferentCoupledClasses()) {
+      afferent.append("<class>")
+          .append(clz)
+          .append("</class>");
+    }
+    afferent.append("</dependedBy>");
+
+    this.p.print("<package>\n" +
+        "<name>" + p.getPackageName() + "</name>\n" +
+        "<cbo>" + p.getCe() + "</cbo>\n" +
+        "<ca>" + p.getCa() + "</ca>\n" +
+        efferent + "\n" +
+        afferent + "\n");
+  }
+
+  @Override
+  public void endOfPackage(PackageMetrics p) {
+    this.p.println("</package>");
+  }
+
+  @Override
+  public void handleClass(ClassMetrics c) {
     StringBuilder efferent = new StringBuilder();
     efferent.append("<dependsOn>");
     for (String clz : c.getEfferentCoupledClasses()) {
@@ -57,7 +93,7 @@ public class PrintXmlResults implements CkjmOutputHandler {
     afferent.append("</dependedBy>");
 
     p.print("<class>\n" +
-        "<name>" + name + "</name>\n" +
+        "<name>" + c.getClassName() + "</name>\n" +
         "<wmc>" + c.getWmc() + "</wmc>\n" +
         "<dit>" + c.getDit() + "</dit>\n" +
         "<noc>" + c.getNoc() + "</noc>\n" +
@@ -71,6 +107,7 @@ public class PrintXmlResults implements CkjmOutputHandler {
         "</class>\n");
   }
 
+  @Override
   public void printFooter() {
     p.println("</ckjm>");
   }
