@@ -3,3 +3,5 @@
 !/FDG
 !/FDG/**
 *.json
+!/jdeps
+!/jdeps/*.sh
