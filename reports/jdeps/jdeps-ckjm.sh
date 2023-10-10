@@ -27,7 +27,7 @@ jdeps $OPTS \
   ${class_dir}/gr/spinellis/ckjm/report/CkjmOutputHandler.class \
   ${prj_dir}/lib/bcel-6.0.jar
 
-# if OPTS constains output then execute another script
+# If dot files generated, render them as images
 if [[ $OPTS == *"--dot-output"* ]]; then
   ${prj_dir}/reports/jdeps/render-dots.sh "$dot_dir"
 fi
