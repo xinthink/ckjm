@@ -28,6 +28,8 @@ import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
 import gr.spinellis.ckjm.report.impl.PrintCsvResults;
@@ -95,25 +97,16 @@ public class MetricsFilter {
       clspec = clspec.substring(spc + 1);
       try {
         jc = new ClassParser(jar, clspec).parse();
-        cm.setModule(jc.getClassName(), getSimpleFileName(jar));
+        cm.setModule(jc.getClassName(), simplyFileName(jar));
       } catch (IOException e) {
         System.err.println("Error loading " + clspec + " from " + jar + ": " + e);
       }
     } else {
       try {
         jc = new ClassParser(clspec).parse();
-
-        String module = "_DefaultModule";
-        String file = jc.getFileName();
-        String pkgPath = jc.getPackageName().replaceAll("\\.", "/");
-
-        int delimiter = file.indexOf("/" + pkgPath);
-        if (delimiter > 0) {
-          // extract the path before package folders
-          module = file.substring(0, delimiter);
-        }
+        String module = simplyPath(jc.getFileName());
         cm.setModule(jc.getClassName(), module);
-//        System.out.println("Module for " + clspec + " is " + module);
+        System.out.println("Module for " + clspec + " is " + module);
       } catch (IOException e) {
         System.err.println("Error loading " + clspec + ": " + e);
       }
@@ -142,17 +135,10 @@ public class MetricsFilter {
       jc = new ClassParser(stream, clspec).parse();
 
       if (delimiter < 0) {
-        String file = jc.getFileName();
-        String pkgPath = jc.getPackageName().replaceAll("\\.", "/");
-
-        delimiter = file.indexOf("/" + pkgPath);
-        if (delimiter > 0) {
-          // extract the path before package folders
-          module = file.substring(0, delimiter);
-        }
+        module = simplyPath(jc.getFileName());
       }
       cm.setModule(jc.getClassName(), module);
-//      System.out.println("Module for " + clspec + " is " + module);
+      System.out.println("Module for " + clspec + " is " + module);
     } catch (IOException e) {
       System.err.println("Error loading " + clspec + ": " + e);
     }
@@ -284,7 +270,7 @@ public class MetricsFilter {
         JarEntry entry = entries.nextElement();
         if (entry.getName().endsWith(".class")) {
           processClass(cm, jarFile.getInputStream(entry),
-              getSimpleFileName(jar) + ":" + entry.getName()); // FIXME: find a better way to specify the jar file path
+              simplyFileName(jar) + ":" + entry.getName()); // FIXME: find a better way to specify the jar file path
         }
       }
     } catch (IOException e) {
@@ -292,9 +278,14 @@ public class MetricsFilter {
     }
   }
 
-  private static String getSimpleFileName(String fileName) {
+  private static String simplyFileName(String fileName) {
     int lastSlash = fileName.lastIndexOf('/');
     return lastSlash > -1 ? fileName.substring(lastSlash + 1) : fileName;
+  }
+
+  private static String simplyPath(String path) {
+    Matcher mt = Pattern.compile("^\\.?/?([^/]+).*$").matcher(path);
+    return mt.matches() ? mt.group(1) : path;
   }
 
   private static boolean isClassIgnored(String className) {
