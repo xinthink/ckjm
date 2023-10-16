@@ -26,7 +26,7 @@ import gr.spinellis.ckjm.report.CkjmOutputHandler;
 
 /**
  * A container of class metrics mapping class names to their metrics.
- * This class contains the the metrics for all class's during the filter's
+ * This class contains the metrics for all class's during the filter's
  * operation.  Some metrics need to be updated as the program processes
  * other classes, so the class's metrics will be recovered from this
  * container to be updated.
@@ -50,6 +50,16 @@ class ClassMetricsContainer {
    * The set of root packages (no parent package)
    */
   private final Set<String> rootPackages = new TreeSet<>();
+
+  /**
+   * Keep track of the module (jar file or project) that each class belongs to
+   */
+  private final Map<String, String> classModules = new HashMap<>();
+
+  /**
+   * The map from module names to the corresponding metrics
+   */
+  private final Map<String, ModuleMetrics> mm = new HashMap<>();
 
   /**
    * Return a class's metrics
@@ -81,9 +91,66 @@ class ClassMetricsContainer {
   }
 
   /**
+   * Return a module's metrics
+   */
+  public ModuleMetrics getModuleMetrics(String name) {
+    ModuleMetrics m = mm.get(name);
+    if (m == null) {
+      m = new ModuleMetrics(name);
+      mm.put(name, m);
+    }
+    return m;
+  }
+
+  /**
+   * Track module that the class belongs to
+   */
+  public void setModule(String className, String module) {
+    if (classModules.containsKey(className)) {
+      String currModule = classModules.get(className);
+      if (currModule != null && !currModule.isBlank() && !currModule.equals(module)) {
+        System.err.println("Warning: class " + className + " found in different modules: " + currModule + " and " + module);
+      }
+    }
+    classModules.put(className, module);
+  }
+
+  /**
+   * Return the module (jar file or project) that the class belongs to
+   */
+  public String getModule(String className) {
+    return classModules.get(className);
+  }
+
+  /**
+   * Aggregate all the visited classes into module metrics.
+   */
+  public void calculateModuleMetrics() {
+    for (ClassMetrics cm : m.values()) {
+      String module = getModule(cm.getClassName());
+      if (module == null || module.isBlank()) {
+        module = "_DefaultModule";
+      }
+
+      cm.setModuleName(module);
+      setModule(cm.getClassName(), module);
+      ModuleMetrics metrics = getModuleMetrics(module);
+      metrics.addClassMetrics(cm);
+    }
+
+    for (ModuleMetrics metrics : mm.values()) {
+      metrics.calculate(Map.copyOf(classModules));
+    }
+  }
+
+  /**
    * Print the metrics of all the visited classes.
    */
   public void printMetrics(CkjmOutputHandler handler) {
+    mm.keySet().stream().sorted().forEach(m ->
+        printMetrics(getModuleMetrics(m), handler)
+    );
+
     for (String rootPackage : rootPackages) {
       PackageMetrics p = pm.get(rootPackage);
       if (p != null) printMetrics(p, handler);
@@ -102,5 +169,15 @@ class ClassMetricsContainer {
     }
 
     handler.endOfPackage(pm);
+  }
+
+  private void printMetrics(ModuleMetrics mm, CkjmOutputHandler handler) {
+    handler.handleModule(mm);
+
+    for (ClassMetrics cm : mm.getClassMetrics()) {
+      if (cm != null) handler.handleClass(cm);
+    }
+
+    handler.endOfModule(mm);
   }
 }

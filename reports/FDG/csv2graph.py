@@ -1,4 +1,4 @@
-import sys, csv, json
+import sys, csv, json, os
 
 def csv_to_json(csv_path, type, json_path):
   nodes = []
@@ -16,8 +16,9 @@ def csv_to_json(csv_path, type, json_path):
           all_nodes[source] = 1
           nodes.append({
             'id': source,
-            'val': r['cbo'],
-            'group': r['package'],
+            'ce': r['cbo'],
+            'ca': r['ca'],
+            'group': r['module'],
           })
 
         links.append({
@@ -30,10 +31,12 @@ def csv_to_json(csv_path, type, json_path):
     links = list(filter(lambda l: l['source'] in [n['id'] for n in nodes] and l['target'] in [n['id'] for n in nodes], links))
 
   with open(json_path, 'w', encoding='utf-8') as jsonf:
+    jsonf.write('const data=')
     jsonf.write(json.dumps({
       'nodes': nodes,
       'links': links,
     }, indent=2))
+    jsonf.write(';')
 
 
 # main function

@@ -32,6 +32,7 @@ import java.util.jar.JarFile;
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
 import gr.spinellis.ckjm.report.impl.PrintCsvResults;
 import gr.spinellis.ckjm.report.impl.PrintPlainResults;
+import gr.spinellis.ckjm.report.impl.PrintXmlModuleResults;
 import gr.spinellis.ckjm.report.impl.PrintXmlResults;
 
 /**
@@ -94,12 +95,25 @@ public class MetricsFilter {
       clspec = clspec.substring(spc + 1);
       try {
         jc = new ClassParser(jar, clspec).parse();
+        cm.setModule(jc.getClassName(), getSimpleFileName(jar));
       } catch (IOException e) {
         System.err.println("Error loading " + clspec + " from " + jar + ": " + e);
       }
     } else {
       try {
         jc = new ClassParser(clspec).parse();
+
+        String module = "_DefaultModule";
+        String file = jc.getFileName();
+        String pkgPath = jc.getPackageName().replaceAll("\\.", "/");
+
+        int delimiter = file.indexOf("/" + pkgPath);
+        if (delimiter > 0) {
+          // extract the path before package folders
+          module = file.substring(0, delimiter);
+        }
+        cm.setModule(jc.getClassName(), module);
+//        System.out.println("Module for " + clspec + " is " + module);
       } catch (IOException e) {
         System.err.println("Error loading " + clspec + ": " + e);
       }
@@ -119,7 +133,26 @@ public class MetricsFilter {
     JavaClass jc = null;
 
     try {
+      String module = "_DefaultModule";
+      int delimiter = clspec.indexOf(":");
+      if (delimiter > -1) {
+        module = clspec.substring(0, delimiter);
+        clspec = clspec.substring(delimiter + 1);
+      }
       jc = new ClassParser(stream, clspec).parse();
+
+      if (delimiter < 0) {
+        String file = jc.getFileName();
+        String pkgPath = jc.getPackageName().replaceAll("\\.", "/");
+
+        delimiter = file.indexOf("/" + pkgPath);
+        if (delimiter > 0) {
+          // extract the path before package folders
+          module = file.substring(0, delimiter);
+        }
+      }
+      cm.setModule(jc.getClassName(), module);
+//      System.out.println("Module for " + clspec + " is " + module);
     } catch (IOException e) {
       System.err.println("Error loading " + clspec + ": " + e);
     }
@@ -187,6 +220,9 @@ public class MetricsFilter {
       processInputItem(cm, argv[i]);
     }
 
+    // Update module metrics
+    cm.calculateModuleMetrics();
+
     // print standard output
     CkjmOutputHandler handler = new PrintPlainResults(System.out);
     cm.printMetrics(handler);
@@ -198,7 +234,7 @@ public class MetricsFilter {
   private static void tryXmlReport(ClassMetricsContainer cm) {
     if (xmlReportTarget != null) {
       try {
-        PrintXmlResults xmlHandler = new PrintXmlResults(new PrintStream(new FileOutputStream(xmlReportTarget)));
+        PrintXmlResults xmlHandler = new PrintXmlModuleResults(new PrintStream(new FileOutputStream(xmlReportTarget)));
         xmlHandler.printHeader();
         cm.printMetrics(xmlHandler);
         xmlHandler.printFooter();
@@ -230,7 +266,7 @@ public class MetricsFilter {
 
   private static void processInputItem(ClassMetricsContainer cm, String item) {
     try {
-      if (item.endsWith(".jar") || item.endsWith(".aar")) {
+      if (item.matches(".*\\.[jwa]ar$")) {
         parseJarFile(cm, item);
       } else {
         processClass(cm, item);
@@ -247,7 +283,8 @@ public class MetricsFilter {
       while (entries.hasMoreElements()) {
         JarEntry entry = entries.nextElement();
         if (entry.getName().endsWith(".class")) {
-          processClass(cm, jarFile.getInputStream(entry), entry.getName());
+          processClass(cm, jarFile.getInputStream(entry),
+              getSimpleFileName(jar) + ":" + entry.getName()); // FIXME: find a better way to specify the jar file path
         }
       }
     } catch (IOException e) {
@@ -255,7 +292,13 @@ public class MetricsFilter {
     }
   }
 
+  private static String getSimpleFileName(String fileName) {
+    int lastSlash = fileName.lastIndexOf('/');
+    return lastSlash > -1 ? fileName.substring(lastSlash + 1) : fileName;
+  }
+
   private static boolean isClassIgnored(String className) {
+    // FIXME: Avoid hardcoding filters
     return className.matches("^(javax|androidx|io.reactivex|org.reactivestreams|kotlin|org.intellij|org.jetbrains).*");
   }
 }

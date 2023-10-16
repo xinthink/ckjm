@@ -17,9 +17,10 @@ package gr.spinellis.ckjm.report.impl;
 
 import java.io.PrintStream;
 
+import gr.spinellis.ckjm.ClassMetrics;
+import gr.spinellis.ckjm.ModuleMetrics;
 import gr.spinellis.ckjm.PackageMetrics;
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
-import gr.spinellis.ckjm.ClassMetrics;
 
 /**
  * XML output formatter
@@ -27,7 +28,7 @@ import gr.spinellis.ckjm.ClassMetrics;
  * @author Julien Rentrop
  */
 public class PrintXmlResults implements CkjmOutputHandler {
-  private PrintStream p;
+  protected final PrintStream p;
 
   public PrintXmlResults(PrintStream p) {
     this.p = p;
@@ -70,6 +71,14 @@ public class PrintXmlResults implements CkjmOutputHandler {
   @Override
   public void endOfPackage(PackageMetrics p) {
     this.p.println("</package>");
+  }
+
+  @Override
+  public void handleModule(ModuleMetrics m) {
+  }
+
+  @Override
+  public void endOfModule(ModuleMetrics m) {
   }
 
   @Override

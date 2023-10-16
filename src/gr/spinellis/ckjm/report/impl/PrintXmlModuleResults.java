@@ -13,26 +13,22 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-
 package gr.spinellis.ckjm.report.impl;
 
 import java.io.PrintStream;
 
 import gr.spinellis.ckjm.ModuleMetrics;
 import gr.spinellis.ckjm.PackageMetrics;
-import gr.spinellis.ckjm.report.CkjmOutputHandler;
-import gr.spinellis.ckjm.ClassMetrics;
 
 /**
- * Simple plain text output formatter
+ * XML output formatter
  *
  * @author Julien Rentrop
  */
-public class PrintPlainResults implements CkjmOutputHandler {
-  private PrintStream p;
+public class PrintXmlModuleResults extends PrintXmlResults {
 
-  public PrintPlainResults(PrintStream p) {
-    this.p = p;
+  public PrintXmlModuleResults(PrintStream p) {
+    super(p);
   }
 
   @Override
@@ -45,21 +41,35 @@ public class PrintPlainResults implements CkjmOutputHandler {
 
   @Override
   public void handleModule(ModuleMetrics m) {
+    StringBuilder efferent = new StringBuilder();
+    efferent.append("<dependsOn>");
+    for (String clz : m.getEfferentCoupledClasses()) {
+      efferent.append("<class>")
+          .append(clz)
+          .append("</class>");
+    }
+    efferent.append("</dependsOn>");
+
+    StringBuilder afferent = new StringBuilder();
+    afferent.append("<dependedBy>");
+    for (String clz : m.getAfferentCoupledClasses()) {
+      afferent.append("<class>")
+          .append(clz)
+          .append("</class>");
+    }
+    afferent.append("</dependedBy>");
+
+    this.p.print("<module>\n" +
+        "<name>" + m.getModuleName() + "</name>\n" +
+        "<cbo>" + m.getCe() + "</cbo>\n" +
+        "<ca>" + m.getCa() + "</ca>\n" +
+        efferent + "\n" +
+        afferent + "\n");
   }
 
   @Override
   public void endOfModule(ModuleMetrics m) {
+    this.p.println("</module>");
   }
 
-  @Override
-  public void printHeader() {
-  }
-
-  @Override
-  public void printFooter() {
-  }
-
-  public void handleClass(ClassMetrics c) {
-    p.println(c.getClassName() + " " + c);
-  }
 }

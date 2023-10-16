@@ -31,7 +31,12 @@ import java.util.Set;
  */
 public class ClassMetrics implements Comparable<ClassMetrics> {
   private final String className;
-  
+
+  /**
+   * The module (jar file or project) that this class belongs to
+   */
+  private String moduleName;
+
   /**
    * Weighted methods per class
    */
@@ -97,6 +102,20 @@ public class ClassMetrics implements Comparable<ClassMetrics> {
   public String getPackageName() {
     int lastDot = className.lastIndexOf('.');
     return lastDot > -1 ? className.substring(0, lastDot) : "";
+  }
+
+  /**
+   * Set the class's module name
+   */
+  public void setModuleName(String moduleName) {
+    this.moduleName = moduleName;
+  }
+
+  /**
+   * Return the class's module name
+   */
+  public String getModuleName() {
+    return moduleName;
   }
 
   /**
@@ -253,6 +272,8 @@ public class ClassMetrics implements Comparable<ClassMetrics> {
   public static boolean isJdkClass(String s) {
     return (s.startsWith("java.") ||
         s.startsWith("javax.") ||
+        s.startsWith("[L") ||
+        s.startsWith("[I") ||
         s.startsWith("org.omg.") ||
         s.startsWith("org.w3c.dom.") ||
         s.startsWith("org.xml.sax."));

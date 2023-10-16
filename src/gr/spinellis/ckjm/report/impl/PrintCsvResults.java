@@ -3,6 +3,7 @@ package gr.spinellis.ckjm.report.impl;
 import java.io.PrintStream;
 
 import gr.spinellis.ckjm.ClassMetrics;
+import gr.spinellis.ckjm.ModuleMetrics;
 import gr.spinellis.ckjm.PackageMetrics;
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
 
@@ -15,7 +16,7 @@ public class PrintCsvResults implements CkjmOutputHandler {
 
   @Override
   public void printHeader() {
-    p.println("name,type,package,wmc,dit,noc,cbo,rfc,lcom,ca,npm,depends_on");
+    p.println("name,type,package,module,wmc,dit,noc,cbo,rfc,lcom,ca,npm,depends_on");
   }
 
   @Override
@@ -25,6 +26,7 @@ public class PrintCsvResults implements CkjmOutputHandler {
       ln.append(p.getPackageName()).append(',')
           .append("package").append(',')
           .append(p.getPackageName()).append(',')
+          .append(',')
           .append(',')
           .append(',')
           .append(',')
@@ -49,6 +51,7 @@ public class PrintCsvResults implements CkjmOutputHandler {
       ln.append(c.getClassName()).append(',')
           .append("class").append(',')
           .append(c.getPackageName()).append(',')
+          .append(c.getModuleName()).append(',')
           .append(c.getWmc()).append(',')
           .append(c.getDit()).append(',')
           .append(c.getNoc()).append(',')
@@ -60,6 +63,35 @@ public class PrintCsvResults implements CkjmOutputHandler {
           .append(clz);
       p.println(ln);
     }
+  }
+
+  @Override
+  public void handleModule(ModuleMetrics m) {
+    StringBuilder ln = new StringBuilder();
+    ln.append(m.getModuleName()).append(',')
+        .append("module").append(',')
+        .append(',')
+        .append(m.getModuleName()).append(',')
+        .append(',')
+        .append(',')
+        .append(',')
+        .append(m.getCe()).append(',')
+        .append(',')
+        .append(',')
+        .append(m.getCa()).append(',')
+        .append(',');
+
+    if (m.getEfferentCoupledModules().isEmpty()) {
+      this.p.println(ln);
+    }
+
+    for (String dep : m.getEfferentCoupledModules()) {
+      this.p.println(ln + dep);
+    }
+  }
+
+  @Override
+  public void endOfModule(ModuleMetrics m) {
   }
 
   @Override

@@ -17,6 +17,7 @@
 package gr.spinellis.ckjm.report;
 
 import gr.spinellis.ckjm.ClassMetrics;
+import gr.spinellis.ckjm.ModuleMetrics;
 import gr.spinellis.ckjm.PackageMetrics;
 
 /**
@@ -41,6 +42,16 @@ public interface CkjmOutputHandler {
    * Method called when package metrics generation ends
    */
   void endOfPackage(PackageMetrics p);
+
+  /**
+   * Method called when module metrics generation starts
+   */
+  void handleModule(ModuleMetrics m);
+
+  /**
+   * Method called when module metrics generation ends
+   */
+  void endOfModule(ModuleMetrics m);
 
   /**
    * Method called when metrics are generated
