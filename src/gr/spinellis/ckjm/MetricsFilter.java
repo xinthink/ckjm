@@ -106,7 +106,7 @@ public class MetricsFilter {
         jc = new ClassParser(clspec).parse();
         String module = simplyPath(jc.getFileName());
         cm.setModule(jc.getClassName(), module);
-        System.out.println("Module for " + clspec + " is " + module);
+//        System.out.println("Module for " + clspec + " is " + module);
       } catch (IOException e) {
         System.err.println("Error loading " + clspec + ": " + e);
       }
@@ -138,7 +138,7 @@ public class MetricsFilter {
         module = simplyPath(jc.getFileName());
       }
       cm.setModule(jc.getClassName(), module);
-      System.out.println("Module for " + clspec + " is " + module);
+//      System.out.println("Module for " + clspec + " is " + module);
     } catch (IOException e) {
       System.err.println("Error loading " + clspec + ": " + e);
     }
