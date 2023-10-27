@@ -30,6 +30,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import gr.spinellis.ckjm.report.CkjmOutputHandler;
 import gr.spinellis.ckjm.report.impl.PrintCsvResults;
@@ -95,11 +97,14 @@ public class MetricsFilter {
     if ((spc = clspec.indexOf(' ')) != -1) {
       String jar = clspec.substring(0, spc);
       clspec = clspec.substring(spc + 1);
-      try {
-        jc = new ClassParser(jar, clspec).parse();
-        cm.setModule(jc.getClassName(), simplyFileName(jar));
-      } catch (IOException e) {
-        System.err.println("Error loading " + clspec + " from " + jar + ": " + e);
+
+      if (!isClassIgnored(clspec)) {
+        try {
+          jc = new ClassParser(jar, clspec).parse();
+          cm.setModule(jc.getClassName(), simplyFileName(jar));
+        } catch (IOException e) {
+          System.err.println("Error loading " + clspec + " from " + jar + ": " + e);
+        }
       }
     } else {
       try {
@@ -132,13 +137,16 @@ public class MetricsFilter {
         module = clspec.substring(0, delimiter);
         clspec = clspec.substring(delimiter + 1);
       }
-      jc = new ClassParser(stream, clspec).parse();
 
-      if (delimiter < 0) {
-        module = simplyPath(jc.getFileName());
+      if (!isClassIgnored(clspec)) {
+        jc = new ClassParser(stream, clspec).parse();
+
+        if (delimiter < 0) {
+          module = simplyPath(jc.getFileName());
+        }
+        cm.setModule(jc.getClassName(), module);
+        System.out.println("Module for " + clspec + " is " + module);
       }
-      cm.setModule(jc.getClassName(), module);
-//      System.out.println("Module for " + clspec + " is " + module);
     } catch (IOException e) {
       System.err.println("Error loading " + clspec + ": " + e);
     }
@@ -252,13 +260,47 @@ public class MetricsFilter {
 
   private static void processInputItem(ClassMetricsContainer cm, String item) {
     try {
-      if (item.matches(".*\\.[jwa]ar$")) {
+      if (item.endsWith(".aar")) {
+        parseAarFile(cm, item);
+      } else if (item.matches(".*\\.[jwa]ar$")) {
         parseJarFile(cm, item);
       } else {
         processClass(cm, item);
       }
     } catch (Throwable e) {
       System.err.println("Error loading " + item + ": " + e);
+    }
+  }
+
+  private static void parseAarFile(ClassMetricsContainer cm, String aar) {
+    Enumeration<JarEntry> entries;
+    try (JarFile aarFile = new JarFile(aar)) {
+      entries = aarFile.entries();
+      while (entries.hasMoreElements()) {
+        JarEntry entry = entries.nextElement();
+        if (entry.getName().endsWith(".jar")) {
+          // parse jar file inside aar file
+          parseJarFile(cm, aar, aarFile.getInputStream(entry));
+        } else if (entry.getName().endsWith(".class")) {
+          processClass(cm, aarFile.getInputStream(entry),
+              simplyFileName(aar) + ":" + entry.getName()); // FIXME: find a better way to specify the jar file path
+        }
+      }
+    } catch (IOException e) {
+      System.err.println("Error loading " + aar + ": " + e);
+    }
+  }
+
+  private static void parseJarFile(ClassMetricsContainer cm, String jarPath, InputStream jarStream) {
+    try (final ZipInputStream zip = new ZipInputStream(jarStream)) {
+      ZipEntry entry;
+      while ((entry = zip.getNextEntry()) != null) {
+        if (entry.getName().endsWith(".class")) {
+          processClass(cm, zip, simplyFileName(jarPath) + ":" + entry.getName());
+        }
+      }
+    } catch (IOException e) {
+      System.err.println("Error loading " + jarPath + ": " + e);
     }
   }
 
@@ -290,6 +332,6 @@ public class MetricsFilter {
 
   private static boolean isClassIgnored(String className) {
     // FIXME: Avoid hardcoding filters
-    return className.matches("^(javax|androidx|io.reactivex|org.reactivestreams|kotlin|org.intellij|org.jetbrains).*");
+    return className.matches("^(java|android|io.reactivex|org.reactivestreams|kotlin|org.intellij|org.jetbrains).*");
   }
 }

@@ -17,6 +17,7 @@ package gr.spinellis.ckjm.report.impl;
 
 import java.io.PrintStream;
 
+import gr.spinellis.ckjm.ClassMetrics;
 import gr.spinellis.ckjm.ModuleMetrics;
 import gr.spinellis.ckjm.PackageMetrics;
 
@@ -39,32 +40,35 @@ public class PrintXmlModuleResults extends PrintXmlResults {
   public void endOfPackage(PackageMetrics p) {
   }
 
+//  @Override
+//  public void handleClass(ClassMetrics c) {
+//  }
+
   @Override
   public void handleModule(ModuleMetrics m) {
     StringBuilder efferent = new StringBuilder();
     efferent.append("<dependsOn>");
-    for (String clz : m.getEfferentCoupledClasses()) {
-      efferent.append("<class>")
-          .append(clz)
-          .append("</class>");
+    for (String dep : m.getEfferentCoupledModules()) {
+      efferent.append("<module>")
+          .append(dep)
+          .append("</module>");
     }
     efferent.append("</dependsOn>");
 
-    StringBuilder afferent = new StringBuilder();
-    afferent.append("<dependedBy>");
-    for (String clz : m.getAfferentCoupledClasses()) {
-      afferent.append("<class>")
-          .append(clz)
-          .append("</class>");
-    }
-    afferent.append("</dependedBy>");
+//    StringBuilder afferent = new StringBuilder();
+//    afferent.append("<dependedBy>");
+//    for (String clz : m.getAfferentCoupledClasses()) {
+//      afferent.append("<class>")
+//          .append(clz)
+//          .append("</class>");
+//    }
+//    afferent.append("</dependedBy>");
 
     this.p.print("<module>\n" +
         "<name>" + m.getModuleName() + "</name>\n" +
         "<cbo>" + m.getCe() + "</cbo>\n" +
         "<ca>" + m.getCa() + "</ca>\n" +
-        efferent + "\n" +
-        afferent + "\n");
+        efferent + "\n");
   }
 
   @Override

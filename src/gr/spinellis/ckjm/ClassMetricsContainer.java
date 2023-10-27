@@ -151,10 +151,10 @@ class ClassMetricsContainer {
         printMetrics(getModuleMetrics(m), handler)
     );
 
-    for (String rootPackage : rootPackages) {
-      PackageMetrics p = pm.get(rootPackage);
-      if (p != null) printMetrics(p, handler);
-    }
+//    for (String rootPackage : rootPackages) {
+//      PackageMetrics p = pm.get(rootPackage);
+//      if (p != null) printMetrics(p, handler);
+//    }
   }
 
   private void printMetrics(PackageMetrics pm, CkjmOutputHandler handler) {
